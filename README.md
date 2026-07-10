@@ -233,3 +233,121 @@ Merge it after review.
 
 
 
+---
+  # Phase 2: Basics - Application and containerize
+
+## Objective
+
+Implement the first version of the HiveBox application, containerize it using Docker, and verify that it runs correctly.
+
+---
+
+## 2.1 Tools Used
+
+* Git
+* VS Code
+* Docker
+* Python 3.12
+
+---
+
+## 2.2 Application Versioning
+
+The initial application version follows **Semantic Versioning**:
+
+```
+v0.0.1
+```
+
+A version function was added to display the current application version.
+
+Example output:
+
+```
+HiveBox App Version: v0.0.1
+```
+
+### Why?
+
+Using versioning helps track application releases and provides a clear reference for future updates.
+
+---
+
+## 2.3 Application Structure
+
+Current project structure:
+
+```
+.
+├── src/
+│   ├── main.py
+│   └── print_version.py
+├── Dockerfile
+└── README.md
+```
+
+`main.py` runs the application and calls the version function.
+
+`print_version.py` contains the application version and printing logic.
+
+---
+
+## 2.4 Docker Containerization
+
+A Dockerfile was created to package the application.
+
+Dockerfile:
+
+```dockerfile
+FROM python:3.12-slim
+
+WORKDIR /app
+
+COPY src/ .
+
+CMD ["python", "main.py"]
+```
+
+### Build the Docker image:
+
+```bash
+docker build -t hivebox-app .
+```
+
+### Run the container:
+
+```bash
+docker run --rm hivebox-app
+```
+
+Expected output:
+
+```
+HiveBox App Version: v0.0.1
+```
+
+### Why?
+
+Docker ensures the application runs consistently across different environments by packaging the code and its runtime dependencies together.
+
+---
+
+## 2.5 Testing
+
+The application was tested locally by running the Docker container and verifying that it:
+
+* Starts successfully.
+* Prints the correct application version.
+* Exits after displaying the version.
+
+---
+
+## Phase 2 Deliverables
+
+✅ Semantic version `v0.0.1` added
+✅ Version printing function implemented
+✅ Application exits after execution
+✅ Dockerfile created
+✅ Docker image built successfully
+✅ Container tested locally
+✅ Documentation updated
