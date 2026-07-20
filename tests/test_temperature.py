@@ -1,9 +1,12 @@
-from fastapi.testclient import TestClient
 from unittest.mock import AsyncMock, patch
+
+from fastapi.testclient import TestClient
 
 from src.main import app
 
+
 client = TestClient(app)
+
 
 mock_data = {
     "name": "Test Box",
@@ -26,7 +29,7 @@ mock_data = {
 def test_temperature(mock_fetch):
     mock_fetch.return_value = mock_data
 
-    response = client.get("/sensebox/ID1")
+    response = client.get("/Temperatur?box_name=ID1")
 
     assert response.status_code == 200
 
