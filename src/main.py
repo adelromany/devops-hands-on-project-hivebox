@@ -1,3 +1,4 @@
+"""the main module for the HiveBox FastAPI application."""
 from fastapi import FastAPI, HTTPException
 import httpx
 
@@ -28,6 +29,7 @@ async def fetch_sensebox(box_id: str) -> dict:
 
 @app.get("/Temperatur")
 async def get_sensebox(box_name: str):
+    """Get the temperature from a SenseBox by its name."""
     box_id = SENSEBOX_IDS.get(box_name)
 
     if not box_id:
@@ -61,14 +63,17 @@ async def get_sensebox(box_name: str):
 
 @app.get("/")
 def root():
+    """Return the root endpoint."""
     return {"message": "Welcome to HiveBox!"}
 
 
 @app.get("/version")
 def version():
+    """Return the application version."""
     return {"version": app.version}
 
 
 @app.get("/health")
 def health():
+    """Return the health status of the application."""
     return {"status": "ok"}

@@ -1,3 +1,4 @@
+"""Tests for the /Temperatur endpoint."""
 from unittest.mock import AsyncMock, patch
 
 from fastapi.testclient import TestClient
@@ -27,6 +28,7 @@ mock_data = {
 
 @patch("src.main.fetch_sensebox", new_callable=AsyncMock)
 def test_temperature(mock_fetch):
+    """Test the /Temperatur endpoint with a mocked fetch_sensebox function."""
     mock_fetch.return_value = mock_data
 
     response = client.get("/Temperatur?box_name=ID1")
