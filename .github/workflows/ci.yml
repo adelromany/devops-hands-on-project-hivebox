@@ -7,7 +7,7 @@ on:
   pull_request:
 
 jobs:
-  test:
+  build_test_push:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -55,11 +55,13 @@ jobs:
           docker tag my-fastapi-app:latest ${{ secrets.DOCKER_USERNAME }}/my-fastapi-app:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/my-fastapi-app:latest
 
-      - name: test the docker image
+      - name: Test the docker image
         run: |
-          docker run -d -p 8000:8000 ${{ secrets.DOCKER_USERNAME }}/my-fastapi-app:latest
+          docker run -d -p 8000:8000 my-fastapi-app:latest
           sleep 10
-          VERSION=$(curl http://localhost:8000/version)
-          echo $VERSION
+
+          VERSION=$(curl -s http://localhost:8000/version | python -c "import sys, json; print(json.load(sys.stdin)['version'])")
+
+          echo "Version: $VERSION"
 
           test "$VERSION" = "1.0.0"
