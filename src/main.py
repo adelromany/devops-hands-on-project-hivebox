@@ -1,6 +1,7 @@
 """the main module for the HiveBox FastAPI application."""
 from fastapi import FastAPI, HTTPException
 import httpx
+from datetime import datetime, timezone, timedelta
 
 app = FastAPI(
     title="HiveBox",
@@ -8,11 +9,11 @@ app = FastAPI(
     version="1.0.0",
 )
 
-SENSEBOX_IDS = {
-    "ID1": "5eba5fbad46fb8001b799786",
-    "ID2": "5c21ff8f919bf8001adf2488",
-    "ID3": "5ade1acf223bd80019a1011c",
-}
+SENSEBOX_IDS = [
+    "5eba5fbad46fb8001b799786",
+    "5c21ff8f919bf8001adf2488",
+    "5ade1acf223bd80019a1011c",
+]
 
 BASE_URL = "https://api.opensensemap.org/boxes"
 
@@ -27,37 +28,46 @@ async def fetch_sensebox(box_id: str) -> dict:
         return response.json()
 
 
-@app.get("/Temperatur")
-async def get_sensebox(box_name: str):
-    """Get the temperature from a SenseBox by its name."""
-    box_id = SENSEBOX_IDS.get(box_name)
+@app.get("/temperature")
+async def get_temperature():
+    """Return the average temperature of all recent SenseBoxes."""
 
-    if not box_id:
-        raise HTTPException(status_code=404, detail="Unknown SenseBox")
+    temperatures = []
 
-    data = await fetch_sensebox(box_id)
+    for box_id in SENSEBOX_IDS:
+        data = await fetch_sensebox(box_id)
 
-    location_name = data["name"]
-    longitude, latitude = data["currentLocation"]["coordinates"]
+        sensor = next(
+            (s for s in data["sensors"] if s["title"] == "Temperatur"),
+            None,
+        )
 
-    sensor = next(
-        (s for s in data["sensors"] if s["title"] == "Temperatur"),
-        None,
-    )
+        if sensor is None:
+            continue
 
-    if sensor is None:
+        measurement = sensor["lastMeasurement"]
+
+        timestamp = datetime.fromisoformat(
+            measurement["createdAt"].replace("Z", "+00:00")
+        )
+
+        if datetime.now(timezone.utc) - timestamp > timedelta(hours=1):
+            continue
+
+        temperatures.append(float(measurement["value"]))
+
+    if not temperatures:
         raise HTTPException(
             status_code=404,
-            detail="Temperature sensor not found",
+            detail="No recent temperature data found.",
         )
 
     return {
-        "message": (
-            f"The temperature at "
-            f"({latitude}, {longitude}) -> "
-            f"{location_name} is "
-            f"{sensor['lastMeasurement']['value']}{sensor['unit']}"
-        )
+        "average_temperature": round(
+            sum(temperatures) / len(temperatures),
+            2,
+        ),
+        "boxes_used": len(temperatures),
     }
 
 

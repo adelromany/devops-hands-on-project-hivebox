@@ -351,3 +351,167 @@ The application was tested locally by running the Docker container and verifying
 ✅ Docker image built successfully
 ✅ Container tested locally
 ✅ Documentation updated
+
+# Phase 3: API, Containers, and Continuous Integration
+
+## Objective
+
+Implement the HiveBox REST API, retrieve live data from the openSenseMap API, containerize the application using Docker best practices, and automate quality checks using GitHub Actions.
+
+## 3.1 Tools Used
+
+- FastAPI
+- Uvicorn
+- Pytest
+- Pylint   --> checks every Python file in project.
+- Hadolint --> checks the Dockerfile .
+- Docker
+- GitHub Actions
+- OpenSSF Scorecard
+
+## 3.2 Application
+
+The application was build  REST API using FastAPI.
+
+### Implemented Endpoints
+
+#### GET /version
+
+Returns the current deployed application version.
+
+Example response:
+
+```json
+{
+  "version": "1.0.0"
+}
+```
+
+#### GET /temperature
+
+Returns the current average temperature calculated from multiple senseBoxes.
+
+Requirements implemented:
+
+- Retrieves live data from the OpenSenseMap API.
+- Uses multiple configured senseBox IDs.
+- Ignores measurements older than one hour.
+- Calculates and returns the average temperature.
+
+Example response:
+
+```json
+{
+  "average_temperature": 26.45
+}
+```
+
+### Why?
+
+Providing REST endpoints allows the application to be consumed by other services while validating incoming data from the OpenSenseMap API.
+
+---
+
+## 3.3 Containerization
+
+The Docker image was improved by applying Docker best practices.
+
+Implemented improvements:
+
+- Lightweight Python base image.
+- Working directory configured.
+- Dependencies installed from `requirements.txt`.
+- Application starts using Uvicorn.
+- Dockerfile validated with Hadolint.
+
+Build the Docker image:
+
+```bash
+docker build -t my-fastapi-app .
+```
+
+Run the container:
+
+```bash
+docker run -p 8000:8000 my-fastapi-app
+```
+
+Test the API:
+
+```bash
+curl http://localhost:8000/version
+```
+
+### Why?
+
+Containerization ensures the application runs consistently across development and deployment environments.
+
+---
+
+## 3.4 Continuous Integration
+
+A GitHub Actions workflow was created to automate the project's quality checks.
+
+The workflow performs the following steps:
+
+1. Checkout the repository.
+2. Install Python dependencies.
+3. Run Pylint.
+4. Run Hadolint on the Dockerfile.
+5. Build the Docker image.
+6. Execute all unit tests.
+7. Run the OpenSSF Scorecard GitHub Action to analyze repository security and DevOps best practices.
+8. Push the Docker image to Docker Hub.
+9. Run the Docker container.
+10. Verify the `/version` endpoint.
+
+### OpenSSF Scorecard
+
+The OpenSSF Scorecard GitHub Action was configured to automatically evaluate the repository against OpenSSF security best practices. The workflow generates a security report and helps identify improvements related to branch protection, dependency management, workflow security, pinned actions, and other supply chain security recommendations.
+
+### Why?
+
+Continuous Integration automatically validates every push and pull request, while the OpenSSF Scorecard helps improve the overall security posture of the repository by checking compliance with widely accepted open source security best practices.
+
+---
+
+## 3.5 Testing
+
+Unit tests were implemented for all API endpoints using Pytest.
+
+The CI pipeline also validates the deployed application by:
+
+- Starting the Docker container.
+- Calling the `/version` endpoint.
+- Verifying that the returned version matches the expected application version.
+
+Run the tests locally:
+
+```bash
+pytest
+```
+
+### Why?
+
+Automated testing ensures the application behaves correctly and helps prevent regressions as new features are added.
+
+---
+
+## Phase 3 Deliverables
+
+- ✅ FastAPI application implemented
+- ✅ `/version` endpoint implemented
+- ✅ `/temperature` endpoint implemented
+- ✅ OpenSenseMap API integration
+- ✅ Temperature filtering (measurements newer than one hour)
+- ✅ Average temperature calculation
+- ✅ Unit tests for all endpoints
+- ✅ Dockerfile following best practices
+- ✅ Docker image builds successfully
+- ✅ GitHub Actions CI pipeline
+- ✅ Pylint integrated
+- ✅ Hadolint integrated
+- ✅ OpenSSF Scorecard GitHub Action configured
+- ✅ Docker image build automated
+- ✅ Docker image published to Docker Hub
+- ✅ `/version` endpoint verified in CI
